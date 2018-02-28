@@ -141,7 +141,7 @@ if(isset($_POST['intervallo_data'])) {
 
     <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white page-sidebar-fixed">
         <!-- BEGIN HEADER -->
-        <?php include(BASE_ROOT . '/assets/header_risultatiRicerca.php'); ?>
+        <?php include(BASE_ROOT . '/assets/header.php'); ?>
         <!-- END HEADER -->
         <!-- BEGIN HEADER & CONTENT DIVIDER -->
         <div class="clearfix"> </div>
@@ -160,6 +160,8 @@ if(isset($_POST['intervallo_data'])) {
 
                     <!-- END THEME PANEL -->
                     <!-- BEGIN PAGE BAR -->
+                    <?php include(BASE_ROOT . '/assets/page_bar.php'); ?>
+                    <!-- END PAGE BAR -->
                     <div class="row">
                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                             <form action="?idMenu=<?=$_GET['idMenu']?>" class="form-horizontal form-bordered" method="POST" id="formIntervallo" name="formIntervallo">
@@ -223,6 +225,7 @@ if(isset($_POST['intervallo_data'])) {
                             
                             $sql_1001 = "
                             CREATE TEMPORARY TABLE stat_corsi_esami_aula_tmp (SELECT
+                            oggetto AS 'oggetto_corso',
                             (SELECT IF(LENGTH(codice)>=1, codice, nome) AS codice_corso FROM lista_prodotti AS lp WHERE lp.id = cal.id_prodotto) AS sigla_corso,
                             IF(cal.etichetta LIKE '%Corsi', cal.data, '') AS data_inizio,
                             data_fine,
@@ -251,6 +254,7 @@ if(isset($_POST['intervallo_data'])) {
                             
                             $sql_1002 = "
                                 CREATE TEMPORARY TABLE stat_corsi_esami_aula_ok (SELECT
+                                oggetto_corso,
                                 sigla_corso,
                                 data_inizio,
                                 data_fine,
@@ -280,6 +284,7 @@ if(isset($_POST['intervallo_data'])) {
                             
                             $sql_1003 = "
                                 CREATE TEMPORARY TABLE stat_corsi_esami_aula_tot (SELECT
+                                '' AS 'oggetto_corso',
                                 '<b>TUTTI</b>' AS sigla_corso,
                                 '' AS data_inizio,
                                 '' AS data_fine,
@@ -461,6 +466,8 @@ if(isset($_POST['intervallo_data'])) {
                                         enableClickableOptGroups: clickable_groups,
                                         enableCollapsibleOptGroups: collapse_groups,
                                         disableIfEmpty: true,
+                                        enableCaseInsensitiveFiltering: true,
+                                        enableFullValueFiltering: false,
                                         enableFiltering: filter,
                                         includeSelectAllOption: select_all,
                                         dropRight: drop_right,

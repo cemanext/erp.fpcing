@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-var BASE_URL_HOST = "http://"+window.location.hostname+"";
+var BASE_URL_HOST = location.protocol+"//"+window.location.hostname+"";
 
 var TableDatatablesResponsive = function () {
 
@@ -32,11 +32,11 @@ var TableDatatablesResponsive = function () {
           ],
 
           "lengthMenu": [
-              [10, 25, 30, 50],
-              [10, 25, 30, 50] // change per page values here
-          ],
-          // set the initial value
-          "pageLength": 25,
+                [10, 25, 30, 50, 100, 250, -1],
+                [10, 25, 30, 50, 100, 250, 'Tutti'] // change per page values here
+            ],
+            // set the initial value
+            "pageLength": 50,
 
           "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
 
@@ -101,11 +101,11 @@ var TableDatatablesAjaxPreventivi = function () {
             ],
 
             "lengthMenu": [
-                [10, 25, 30, 50],
-                [10, 25, 30, 50] // change per page values here
+                [10, 25, 30, 50, 100, 250, -1],
+                [10, 25, 30, 50, 100, 250, 'Tutti'] // change per page values here
             ],
             // set the initial value
-            "pageLength": 30,
+            "pageLength": 50,
 
             "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
 
@@ -129,7 +129,7 @@ var TableDatatablesAjaxPreventivi = function () {
 
 $( document ).ready(function() {
     
-    BASE_URL_HOST = "http://"+window.location.hostname+"";
+    BASE_URL_HOST = location.protocol+"//"+window.location.hostname+"";
     
     TableDatatablesResponsive.init();
     TableDatatablesAjaxPreventivi.init();

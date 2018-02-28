@@ -86,7 +86,7 @@ if (isset($_POST['intervallo_data'])) {
 
     <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white page-sidebar-fixed">
         <!-- BEGIN HEADER -->
-        <?php include(BASE_ROOT . '/assets/header_risultatiRicerca.php'); ?>
+        <?php include(BASE_ROOT . '/assets/header.php'); ?>
         <!-- END HEADER -->
         <!-- BEGIN HEADER & CONTENT DIVIDER -->
         <div class="clearfix"> </div>
@@ -105,6 +105,8 @@ if (isset($_POST['intervallo_data'])) {
 
                     <!-- END THEME PANEL -->
                     <!-- BEGIN PAGE BAR -->
+                    <?php include(BASE_ROOT . '/assets/page_bar.php'); ?>
+                    <!-- END PAGE BAR -->
                     <div class="row">
 
                         <div class="col-md-6">
@@ -195,7 +197,7 @@ if (isset($_POST['intervallo_data'])) {
                             GROUP BY YEAR(data_creazione), MONTH(data_creazione), tipo
                             ORDER BY YEAR(data_creazione) DESC, MONTH(data_creazione) DESC, tipo, sezionale, stato ASC;";
 
-                            stampa_table_static_basic($sql_0004, 'tab4_fatture_home', $titolo_intervallo, '', 'fa fa-user');
+                            stampa_table_static_basic($sql_0004, 'tab4_fatture_home', "ESPORTA XML", '', 'fa fa-user');
                             ?>
 
                         </div>
@@ -208,7 +210,7 @@ if (isset($_POST['intervallo_data'])) {
                             GROUP BY YEAR(data_creazione), MONTH(data_creazione)
                             ORDER BY YEAR(data_creazione) DESC, MONTH(data_creazione) DESC;";
 
-                            stampa_table_static_basic($sql_0014, 'tab5_fatture_home', $titolo_intervallo, '', 'fa fa-user');
+                            stampa_table_static_basic($sql_0014, 'tab5_fatture_home', 'ESPORTA PER COMMERCIALISTA', '', 'fa fa-user');
                             ?>
                             <!-- ESEMPIO STAMPIA GOOGLE CHART -->
                             <!--<div class="portlet light portlet-fit bordered">

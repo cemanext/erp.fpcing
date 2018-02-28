@@ -4,11 +4,26 @@
  * and open the template in the editor.
  */
 
-var BASE_URL_HOST = "http://"+window.location.hostname+"";
+var BASE_URL_HOST = location.protocol+"//"+window.location.hostname+"";
+
+function scriviNomeObiezioneInCalendario(selettore){
+    
+    var id = selettore.id;
+
+    var temp = new Array();
+    var valori = $("#"+id).find(':selected').data("options");
+    temp = valori.split(":");
+
+    $("#txt_id_calendario").val(temp[0]);
+    $("#txt_id_preventivo").val(temp[1]);
+    $("#txt_id_obiezione").val(temp[2]);
+    
+    $("#formSalvaNomeObiezioneInCalendario").submit();
+}
 
 $(document).ready(function() {
     
-    BASE_URL_HOST = "http://"+window.location.hostname+"";
+    BASE_URL_HOST = location.protocol+"//"+window.location.hostname+"";
     
     toastr.options = {
         "closeButton": false,
@@ -501,17 +516,16 @@ var TableDatatablesAjaxCalendario = function () {
                 ],
 
                 "lengthMenu": [
-                    [10, 25, 30, 50, -1],
-                    [10, 25, 30, 50, "Tutti"] // change per page values here
+                    [10, 25, 30, 50, 100, 250, -1],
+                    [10, 25, 30, 50, 100, 250, 'Tutti'] // change per page values here
                 ],
                 // set the initial value
-                "pageLength": 30,
+                "pageLength": 50,
 
                 "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
 
                 "columnDefs": [
                     {"className": "dt-center", "targets": "_all"},
-                    {"orderable": true, "targets": [ 1, 2, 3, 4, 5, 6, 7 ],},
                     {"orderable": false, "targets": [ 0],}
                 ],
 

@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-var BASE_URL_HOST = "http://"+window.location.hostname+"";
+var BASE_URL_HOST = location.protocol+"//"+window.location.hostname+"";
 
 function scriviDentroListaPreventiviDettaglio(){
 
@@ -127,11 +127,11 @@ var TableDatatablesResponsive = function () {
           ],
 
           "lengthMenu": [
-              [10, 25, 30, 50],
-              [10, 25, 30, 50] // change per page values here
-          ],
-          // set the initial value
-          "pageLength": 25,
+                [10, 25, 30, 50, 100, 250, -1],
+                [10, 25, 30, 50, 100, 250, 'Tutti'] // change per page values here
+            ],
+            // set the initial value
+            "pageLength": 50,
 
           "columnDefs": [
                 {"className": "dt-center", "targets": "_all"},
@@ -201,11 +201,11 @@ var TableDatatablesAjaxPreventivi = function () {
             ],
 
             "lengthMenu": [
-                [10, 25, 30, 50],
-                [10, 25, 30, 50] // change per page values here
+                [10, 25, 30, 50, 100, 250, -1],
+                [10, 25, 30, 50, 100, 250, 'Tutti'] // change per page values here
             ],
             // set the initial value
-            "pageLength": 30,
+            "pageLength": 50,
             
             "columnDefs": [
                 {"className": "dt-center", "targets": "_all"},
@@ -301,7 +301,7 @@ var ComponentsSelectProvvigione = function() {
 
 $( document ).ready(function() {
     
-    BASE_URL_HOST = "http://"+window.location.hostname+"";
+    BASE_URL_HOST = location.protocol+"//"+window.location.hostname+"";
     
     ComponentsSelectProdotto.init();
     TableDatatablesResponsive.init();

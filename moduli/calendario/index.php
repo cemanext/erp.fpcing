@@ -225,6 +225,8 @@ if(isset($_GET['whrStato']) && $_GET['whrStato']!="0e902aba617fb11d469e1b90f57fd
         <script src="<?= BASE_URL ?>/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
         <script src="<?= BASE_URL ?>/assets/global/scripts/datatable.js" type="text/javascript"></script>
         <script src="<?= BASE_URL ?>/assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
+        <script src="<?= BASE_URL ?>/assets/global/plugins/datatables/plugins/moment.min.js" type="text/javascript"></script>
+        <script src="<?= BASE_URL ?>/assets/global/plugins/datatables/plugins/datetime-moment.js" type="text/javascript"></script>
         <script src="<?= BASE_URL ?>/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
         <script src="<?= BASE_URL ?>/assets/global/plugins/bootstrap-toastr/toastr.min.js" type="text/javascript"></script>
         <script src="<?= BASE_URL ?>/assets/global/plugins/typeahead/typeahead.bundle.min.js" type="text/javascript"></script>
@@ -391,6 +393,32 @@ if(isset($_GET['whrStato']) && $_GET['whrStato']!="0e902aba617fb11d469e1b90f57fd
                     </div>
                     <!-- dialog buttons -->
                     <div class="modal-footer"><button type="button" id="annullaButtonPrendiInCarico" class="btn btn-primary red">ANNULLA</button><button type="button" id="okButtonPrendiInCarico" class="btn btn-primary">CONFERMA</button></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="myModalRichiestaNegativa" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <!-- dialog body -->
+                    <div class="modal-body">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        Indicare la motivazione per la quale si dichiara che l'offerta è negativa!
+                        <form method="POST" action="salva.php?fn=salvaNomeObiezioneInCalendario" class="form-horizontal form-bordered" enctype="multipart/form-data" id="formSalvaNomeObiezioneInCalendario">
+                            <div class="form-body">
+                                <div class="form-group">
+                                    <label></label>
+                                    <div class="col-md-12">
+                                        <?php print_hidden("txt_id_calendario", "");?>
+                                        <?php print_hidden("txt_id_preventivo", "");?>
+                                        <?php print_hidden("txt_id_obiezione", "");?>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- dialog buttons -->
+                    <div class="modal-footer"><button type="button" id="annullaButtonRichiestaNegativa" class="btn btn-primary red">ANNULLA</button><button type="button" id="okButtonRichiestaNegativa" class="btn btn-primary">CONFERMA</button></div>
                 </div>
             </div>
         </div>

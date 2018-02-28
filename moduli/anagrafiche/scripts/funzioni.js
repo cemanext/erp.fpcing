@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-var BASE_URL_HOST = "http://"+window.location.hostname+"";
+var BASE_URL_HOST = location.protocol+"//"+window.location.hostname+"";
 
 function scriviDentroListaPreventiviDettaglioTXT(selettore){
     
@@ -21,7 +21,7 @@ function scriviDentroListaPreventiviDettaglioTXT(selettore){
 
 $( document ).ready(function() {
     
-    BASE_URL_HOST = "http://"+window.location.hostname+"";
+    BASE_URL_HOST = location.protocol+"//"+window.location.hostname+"";
     
     toastr.options = {
         "closeButton": false,
@@ -519,6 +519,166 @@ $( document ).ready(function() {
         $("#myModalPrendiInCarico .form-body #idAgenteOld").remove();
         $("#myModalPrendiInCarico .form-body #idAgenteNew").remove();
         $("#myModalPrendiInCarico").modal('hide');     // dismiss the dialog
+    });
+    
+    $('#myModalAssociaProfessionista').on('shown.bs.modal', function () {
+        $('#idFromAssociaProfessionista #associa_professionista').focus();
+    });
+    
+    $("#associaProfessionista").on( "click", function(event) {
+        
+        event.preventDefault();
+        
+        $("#myModalAssociaProfessionista").modal({   // wire up the actual modal functionality and show the dialog
+            "backdrop"  : "static",
+            "keyboard"  : true,
+            "show"      : true                     // ensure the modal is shown immediately
+        });
+        
+    });
+    
+    var cercaProfessionista = new Bloodhound({
+        datumTokenizer: function(d) { return d.tokens; },
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        remote: {
+            url: BASE_URL_HOST+'/moduli/anagrafiche/salva.php?fn=cercaProfessionista&key_search=%QUERY',
+            wildcard: '%QUERY'
+          }
+      });
+      
+      cercaProfessionista.initialize();
+
+      $('input#associa_professionista').typeahead(null, {
+        name: 'associa_professionista',
+        displayKey: function(data) {
+            return data.ragione_sociale;        
+        },
+        limit : 100,
+        source: cercaProfessionista.ttAdapter()
+      }).bind('typeahead:select', function(ev, data) {
+            $("#myModalAssociaProfessionista input#id_professionista").val(data.id_professionista);
+            $("#myModalAssociaProfessionista input#codice_fiscale").val(data.codice_fiscale);
+            //alert('Selection: ' + data.ragione_sociale);
+          
+            var saveId = "";
+            var numCheck = ($('input:checkbox').length-1);
+            for (i = 0; i < numCheck; i++) { 
+                if ($('#txt_checkbox_'+i+'').is(':checked')) {
+                    if(saveId.length > 0){
+                        saveId = saveId+":"+$('#txt_checkbox_'+i+'').val();
+                    }else{
+                        saveId = saveId+$('#txt_checkbox_'+i+'').val();
+                    }
+                }
+            }
+            
+            //alert('SaveId: '+saveId);
+
+            $("#myModalAssociaProfessionista input#idIscrizioni").val(saveId);
+          
+      });
+    
+    $("#myModalAssociaProfessionista #okButtonAssociaProfessionista").on( "click", function(event) {
+        
+        //event.preventDefault();
+        
+        
+        
+        var posting = jQuery.post( BASE_URL_HOST+"/moduli/anagrafiche/salva.php?fn=cambiaProfessionistaIscrizione" , jQuery( "#idFromAssociaProfessionista" ).serializeArray() );
+        posting.done(function(data) {
+            
+            var str = data.replace(/^\s+|\s+$/g, '');
+            var res = str.split(":");
+            
+            if(res[0] === "OK"){
+                $("#myModalAssociaProfessionista input#id_professionista").val('');
+                $("#myModalAssociaProfessionista input#codice_fiscale").val('');
+                $("#myModalAssociaProfessionista input#cerca_professionista").val('');
+                $("#myModalAssociaProfessionista input#idIscrizioni").val('');
+                $("#myModalAssociaProfessionista").modal('hide');     // dismiss the dialog
+                location.href = urlReferer + "&res=1#tab_prof";
+            }else{
+                //alert("Non è stata torvata nessuna azienda corrispondente alla Partita IVA inserita.\n\nUna nuova azienda è stata creata, terminare la compilazione dei dati.");
+                $("#myModalAssociaProfessionista input#id_professionista").val('');
+                $("#myModalAssociaProfessionista input#codice_fiscale").val('');
+                $("#myModalAssociaProfessionista input#cerca_professionista").val('');
+                $("#myModalAssociaProfessionista input#idIscrizioni").val('');
+                $("#myModalAssociaProfessionista").modal('hide');     // dismiss the dialog
+                location.href = urlReferer + "&res=0#tab_prof";
+            }
+            //alert( "Data Loaded: " + data );
+        }).fail(function() {
+            //alert("Errore nella ricerca del Codice Cliente o Codice Fiscale.");
+            $("#myModalAssociaProfessionista input#id_professionista").val('');
+            $("#myModalAssociaProfessionista input#codice_fiscale").val('');
+            $("#myModalAssociaProfessionista input#cerca_professionista").val('');
+            $("#myModalAssociaProfessionista input#idIscrizioni").val('');
+            $("#myModalAssociaProfessionista").modal('hide'); 
+            location.href = urlReferer + "&res=0#tab_prof";
+        });
+
+    });
+    
+    $("#myModalAssociaProfessionista #annullaButtonAssociaProfessionista").on( "click", function(event) {
+        event.preventDefault();
+        $("#myModalAssociaProfessionista input#id_professionista").val('');
+        $("#myModalAssociaProfessionista input#codice_fiscale").val('');
+        $("#myModalAssociaProfessionista input#idIscrizioni").val('');
+        $("#myModalAssociaProfessionista").modal('hide');     // dismiss the dialog
+    });
+    
+    $('#txt_checkbox_all').change(function(){
+        var numCheck = ($('input:checkbox').length-1);
+        for (i = 0; i < numCheck; i++) { 
+            if ($('#txt_checkbox_'+i+'').is(':checked')) {
+                $('#txt_checkbox_'+i+'').prop('checked',false);
+            } else {
+                $('#txt_checkbox_'+i+'').prop('checked',true);
+            }
+        }
+    });
+    
+    $("#richiestaNegativa1, #richiestaNegativa2").on( "click", function(event) {
+        
+        event.preventDefault();
+        
+        $("#myModalRichiestaNegativa").modal({          // wire up the actual modal functionality and show the dialog
+            "backdrop"  : "static",
+            "keyboard"  : true,
+            "show"      : true                     // ensure the modal is shown immediately
+        });
+        
+    }); 
+    
+    $("#myModalRichiestaNegativa #okButtonRichiestaNegativa").on( "click", function(event) {
+        event.preventDefault();
+        
+        var valoreObiezione = $("#idFromRichiestaNegativa #idObiezione").val();
+        
+        if(valoreObiezione > 0){
+            var posting = jQuery.post( BASE_URL_HOST+"/moduli/anagrafiche/salva.php?fn=preventivoNegativo" , jQuery( "#idFromRichiestaNegativa" ).serializeArray() );
+            posting.done(function(data) {
+                var tmp = data.split(':');
+                $("#myModalRichiestaNegativa").modal('hide');     // dismiss the dialog
+                location.href = urlReferer + "&res=1";
+                //alert( "Data Loaded: " + data );
+            }).fail(function() {
+                toastr.alert("Impossibile trasferire la richiesta!", "Errore");
+                $("#myModalRichiestaNegativa").modal('hide'); 
+            });
+        }else{
+            alert('Valore obiezione obbligatorio!');    
+        }
+    });
+    
+    $("#myModalRichiestaNegativa #annullaButtonRichiestaNegativa").on( "click", function(event) {
+        event.preventDefault(); 
+        $("#myModalRichiestaNegativa #idCal").val('');
+        $("#myModalRichiestaNegativa").modal('hide');     // dismiss the dialog
+    });
+    
+    $('#myModalRichiestaNegativa').on('shown.bs.modal', function () {
+        $('#idFromRichiestaNegativa #idObiezione').focus();
     });
     
     ComponentsSelectProvAblo.init();
@@ -1122,11 +1282,11 @@ var TableDatatablesAjaxProff = function () {
             ],
 
             "lengthMenu": [
-                [10, 25, 30, 50, -1],
-                [10, 25, 30, 50, 'Tutti'] // change per page values here
+                [10, 25, 30, 50, 100, 250, -1],
+                [10, 25, 30, 50, 100, 250, 'Tutti'] // change per page values here
             ],
             // set the initial value
-            "pageLength": 30,
+            "pageLength": 50,
 
             "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
 
@@ -1180,11 +1340,11 @@ var TableDatatablesAjaxProff = function () {
             ],
 
             "lengthMenu": [
-                [10, 25, 30, 50, -1],
-                [10, 25, 30, 50, 'Tutti'] // change per page values here
+                [10, 25, 30, 50, 100, 250, -1],
+                [10, 25, 30, 50, 100, 250, 'Tutti'] // change per page values here
             ],
             // set the initial value
-            "pageLength": 30,
+            "pageLength": 50,
 
             "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
 
@@ -1244,11 +1404,11 @@ var TabelleAnagrafiche = function () {
           ],
 
           "lengthMenu": [
-              [10, 25, 30, 50, -1],
-              [10, 25, 30, 50, 'Tutti'] // change per page values here
-          ],
-          // set the initial value
-          "pageLength": 30,
+                [10, 25, 30, 50, 100, 250, -1],
+                [10, 25, 30, 50, 100, 250, 'Tutti'] // change per page values here
+            ],
+            // set the initial value
+            "pageLength": 50,
 
           "dom": "<'row' <'col-md-12'B>><'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r><'table-scrollable't><'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>", // horizobtal scrollable datatable
 

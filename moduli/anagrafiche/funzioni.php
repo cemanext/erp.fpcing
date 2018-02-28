@@ -5,7 +5,7 @@ $anagrafiche_default = "lista_aziende";
 /** FUNZIONI DI CROCCO */
 function Stampa_HTML_index_Anagrafica($tabella) {
     global $table_listaAziende, $table_listaProfessionisti, $table_listaProfessioni,
-    $table_listaAlbiProfessionali;
+    $table_listaAlbiProfessionali, $dblink;
     switch ($tabella) {
 
         default:
@@ -31,7 +31,7 @@ function Stampa_HTML_index_Anagrafica($tabella) {
                                         CONCAT('<a class=\"btn btn-circle btn-icon-only blue btn-outline\" href=\"modifica.php?tbl=lista_professionisti&id=',id,'\" title=\"MODIFICA\" alt=\"MODIFICA\"><i class=\"fa fa-edit\"></i></a>') AS 'fa-edit',
                                         CONCAT('<a class=\"btn btn-circle btn-icon-only green btn-outline\" href=\"dettaglio_tab.php?tbl=lista_professionisti&id=',id,'\" title=\"RICHIESTA\" alt=\"RICHIESTA\"><i class=\"fa fa-book\"></i></a>') AS 'fa-book',
                                         CONCAT('<b>',`cognome`,' ',`nome`,'</b>') AS 'professionista', codice_fiscale AS 'codice fiscale', 
-                                        CONCAT('Cel: ',cellulare,'<br>Tel: ', telefono,'<br>Email: ', email) AS Contatti, stato";
+                                        CONCAT('Cel: ',cellulare,'<br>Tel: ', telefono) AS Telefono, email";
             $where = $table_listaProfessionisti['index']['where'];
             $ordine = $table_listaProfessionisti['index']['order'];
             $titolo = 'Elenco Professionisti';
@@ -63,6 +63,32 @@ function Stampa_HTML_index_Anagrafica($tabella) {
             $sql_0001 = "SELECT " . $campi_visualizzati . " FROM " . $tabella . " WHERE $where $ordine $limite";
             stampa_table_datatables_responsive($sql_0001, $titolo);
             break;
+        
+        case 'verifica_codice_fiscale':
+            $tabella = "lista_professionisti";
+            
+            $allProf = $dblink->get_results("SELECT * FROM $tabella WHERE LENGTH(codice_fiscale)=16 AND codice_fiscale NOT LIKE '%@%' AND campo_3!='@'");
+            foreach ($allProf as $checkProf) {
+                if(!controlloCodiceFiscale($checkProf['codice_fiscale'])){
+                    $dblink->query("UPDATE $tabella SET campo_3 = '@' WHERE id = '".$checkProf['id']."'");
+                }
+            }
+            
+            $campi_visualizzati = $table_listaProfessionisti['index']['campi'];
+
+            $campi_visualizzati = "CONCAT('<a class=\"btn btn-circle btn-icon-only yellow btn-outline\" href=\"dettaglio.php?tbl=lista_professionisti&id=',id,'\" title=\"DETTAGLIO\" alt=\"DETTAGLIO\"><i class=\"fa fa-search\"></i></a>') AS 'fa-search',
+                                        CONCAT('<a class=\"btn btn-circle btn-icon-only blue btn-outline\" href=\"modifica.php?tbl=lista_professionisti&id=',id,'\" title=\"MODIFICA\" alt=\"MODIFICA\"><i class=\"fa fa-edit\"></i></a>') AS 'fa-edit',
+                                        CONCAT('<a class=\"btn btn-circle btn-icon-only green btn-outline\" href=\"dettaglio_tab.php?tbl=lista_professionisti&id=',id,'\" title=\"RICHIESTA\" alt=\"RICHIESTA\"><i class=\"fa fa-book\"></i></a>') AS 'fa-book',
+                                        CONCAT('<b>',`cognome`,' ',`nome`,'</b>') AS 'professionista', codice_fiscale AS 'codice fiscale', 
+                                        CONCAT('Cel: ',cellulare,'<br>Tel: ', telefono) AS Telefono, email";
+            $where = " 1 AND (LENGTH(codice_fiscale)<16 OR LENGTH(codice_fiscale)>16 OR codice_fiscale LIKE '%@%' OR campo_3 = '@') ";
+            $ordine = $table_listaProfessionisti['index']['order'];
+            $titolo = 'Elenco Professionisti con Codice Fiscale Errato!';
+            $limite = ' ';
+            $sql_0001 = "SELECT " . $campi_visualizzati . " FROM " . $tabella . " WHERE $where $ordine $limite";
+            
+            stampa_table_datatables_responsive($sql_0001, $titolo, 'tabella_base', 'red-intense');
+        break;
     }
 }
 
@@ -133,7 +159,7 @@ function Stampa_HTML_Dettaglio_Anagrafica($tabella, $id) {
         case 'lista_professionisti':
 
             $sql_007_aggiorna_id_calendario = "UPDATE lista_fatture, lista_professionisti
-            SET lista_fatture.codice_ricerca = CONCAT(lista_fatture.codice,'/',lista_fatture.sezionale)
+            SET lista_fatture.codice_ricerca = CONCAT(lista_fatture.codice,'".SEPARATORE_FATTURA."',lista_fatture.sezionale)
             WHERE lista_professionisti.id = '" . $id . "'
             AND lista_fatture.id_professionista = lista_professionisti.id";
             $rs_007_aggiorna_id_calendario = $dblink->query($sql_007_aggiorna_id_calendario);
@@ -171,6 +197,7 @@ function Stampa_HTML_Dettaglio_Anagrafica($tabella, $id) {
             //echo '--> '.$idUtente_per_iframe;
             echo '<iframe frameborder="0" border="0" width="100%" height="0px;" src="'.BASE_URL.'/libreria/automazioni/autoRecuperaCorsiUtentiMoodle_Multiplo.php?idUtente='.$idUtente_per_iframe.'"></iframe>';
             echo '<iframe frameborder="0" border="0" width="100%" height="0px;" src="'.BASE_URL.'/libreria/automazioni/autoCorsiIniziati_Multiplo.php?idUtente='.$idUtente_per_iframe.'"></iframe>';
+            
             echo '</div></div>';
             /*echo '<div class="row"><div class="col-md-12 col-sm-12">';
             $sql_0031 = "SELECT mdl_user.`id` AS 'Id Moodle', mdl_user.`username`, mdl_user.`email`, "
@@ -238,16 +265,24 @@ IF(tipo LIKE 'Fattura',CONCAT('<span class=\"btn sbold uppercase btn-outline blu
             /* (SELECT CONCAT(cognome, ' ', nome) FROM lista_professionisti WHERE id = id_professionista) AS 'Professionista', */
             $sql_0005 = "SELECT
             CONCAT('<a class=\"btn btn-circle btn-icon-only yellow btn-outline\" href=\"" . BASE_URL . "/moduli/iscrizioni/dettaglio.php?tbl=lista_iscrizioni_partecipanti&id=',id,'\" title=\"DETTAGLIO\" alt=\"DETTAGLIO\"><i class=\"fa fa-search\"></i></a>') AS 'fa-search',
+            CONCAT('<a class=\"btn btn-circle btn-icon-only red btn-outline\" href=\"" . BASE_URL . "/moduli/corsi/printAttestatoPDF.php?idIscrizione=',`id`,'\" TARGET=\"_BLANK\" title=\"STAMPA\" alt=\"STAMPA\"><i class=\"fa fa-file-pdf-o\"></i></a>') AS 'PDF',
+            CONCAT('<a class=\"btn btn-circle btn-icon-only yellow btn-outline\" href=\"" . BASE_URL . "/moduli/iscrizioni/inviaAttestato.php?idIscrizione=',id,'\" data-target=\"#ajax\" data-url=\"" . BASE_URL . "/moduli/fatture/inviafatt.php?idFatt=',id,'\" data-toggle=\"modal\" title=\"INVIA\" alt=\"INVIA\"><i class=\"fa fa-paper-plane\"></i></a>') AS 'Invia', 
             (SELECT nome_prodotto FROM lista_corsi WHERE id = id_corso) AS 'Corso',
             (SELECT nome FROM lista_classi WHERE id = id_classe) AS 'Classe',
             data_inizio_iscrizione, data_fine_iscrizione,
             DATE(data_inizio) AS 'Data Inizio', 
             IF(data_completamento LIKE '000%',DATE(data_fine), DATE(data_completamento)) AS 'Data Fine', 
-            stato, avanzamento_completamento AS 'Perc.'
-            FROM lista_iscrizioni WHERE id_professionista = $id ORDER BY dataagg DESC";
+            stato, avanzamento_completamento AS 'Perc.',
+            CONCAT('<a class=\"btn btn-circle btn-icon-only red btn-outline\" onclick=\"javascript: return confirm(\'Sei sicuro di rigenerare questo attestato ?\');\" href=\"" . BASE_URL . "/moduli/corsi/printAttestatoPDF.php?idIscrizione=',`id`,'&force=1\" TARGET=\"_BLANK\" title=\"FORZA RIGENERA\" alt=\"FORZA RIGENERA\"><i class=\"fa fa-repeat\"></i></a>') AS 'RIGENERA PDF',
+            id AS 'selezione'
+            FROM lista_iscrizioni WHERE id_professionista = '$id' ORDER BY dataagg DESC";
             //stampa_table_static_basic($sql_0005, '', 'Iscrizioni Corsi', 'green-meadow', 'fa fa-university');
             stampa_table_datatables_responsive($sql_0005, 'Iscrizioni Corsi', 'tabella_base5', 'green-meadow', 'fa fa-university');
-            echo '</div></div>';
+            echo '</div>'
+                .'<div style="text-align: center; margin-bottom: 15px;"> 
+                    <button id="associaProfessionista" type="button" class="btn btn-icon purple-studio" alt="CAMBIA PROFESSIONISTA" title="CAMBIA PROFESSIONISTA"><i class="fa fa-sign-in"></i> Cambia Proprietario del Corso</a></button>
+                </div>'
+            . '</div>';
 
             echo '<div class="row"><div class="col-md-12 col-sm-12">';
             $sql_0006 = "SELECT
